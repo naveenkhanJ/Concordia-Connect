@@ -1,4 +1,5 @@
 import 'package:atg/features/login/login_page.dart';
+import 'package:atg/features/workspace/join_invite_link_page.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -54,7 +55,12 @@ class WorkspaceSelectionPage extends StatelessWidget {
                       title: 'Join with Invite link',
                       description: 'Enter your Organization link to connect',
                       onTap: () {
-                        // TODO: Navigate to join workspace
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const JoinInviteLinkPage(),
+                          ),
+                        );
                       },
                     ),
 

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:atg/core/pending_approval_service.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class UnStaffSignUpPage extends StatefulWidget {
   final String inviteLink;
 
-  const UnStaffSignUpPage({
-    super.key,
-    required this.inviteLink,
-  });
+  const UnStaffSignUpPage({super.key, required this.inviteLink});
 
   @override
   State<UnStaffSignUpPage> createState() => _UnStaffSignUpPageState();
@@ -141,11 +140,7 @@ class _UnStaffSignUpPageState extends State<UnStaffSignUpPage> {
             shape: BoxShape.circle,
           ),
           child: Center(
-            child: Icon(
-              LucideIcons.building2,
-              size: 36,
-              color: _primary,
-            ),
+            child: Icon(LucideIcons.building2, size: 36, color: _primary),
           ),
         ),
 
@@ -203,20 +198,6 @@ class _UnStaffSignUpPageState extends State<UnStaffSignUpPage> {
         const SizedBox(height: 20),
 
         // UN ID Number Field
-        _buildTextField(
-          controller: _unIdController,
-          label: 'UN ID Number',
-          hint: 'Enter your UN ID number',
-          icon: LucideIcons.badgeCheck,
-          keyboardType: TextInputType.text,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your UN ID number';
-            }
-            return null;
-          },
-        ),
-
         const SizedBox(height: 20),
 
         // Email Field
@@ -256,6 +237,21 @@ class _UnStaffSignUpPageState extends State<UnStaffSignUpPage> {
             return null;
           },
         ),
+
+        // Upload Identity Proof Button
+        const SizedBox(height: 20),
+        ElevatedButton.icon(
+          onPressed: _showImagePickerOptions,
+          icon: Icon(LucideIcons.upload, size: 20),
+          label: Text('Upload Identity Proof'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _primary,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -289,10 +285,7 @@ class _UnStaffSignUpPageState extends State<UnStaffSignUpPage> {
           decoration: BoxDecoration(
             color: _surfaceLight,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: _borderLight,
-              width: 1.5,
-            ),
+            border: Border.all(color: _borderLight, width: 1.5),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withAlpha(8),
@@ -320,11 +313,7 @@ class _UnStaffSignUpPageState extends State<UnStaffSignUpPage> {
               ),
               prefixIcon: Padding(
                 padding: const EdgeInsets.only(left: 14, right: 10),
-                child: Icon(
-                  icon,
-                  size: 20,
-                  color: _textSecondary,
-                ),
+                child: Icon(icon, size: 20, color: _textSecondary),
               ),
               prefixIconConstraints: const BoxConstraints(
                 minWidth: 44,
@@ -338,9 +327,7 @@ class _UnStaffSignUpPageState extends State<UnStaffSignUpPage> {
                         });
                       },
                       icon: Icon(
-                        _obscurePassword
-                            ? LucideIcons.eyeOff
-                            : LucideIcons.eye,
+                        _obscurePassword ? LucideIcons.eyeOff : LucideIcons.eye,
                         size: 18,
                         color: _textSecondary,
                       ),
@@ -351,14 +338,96 @@ class _UnStaffSignUpPageState extends State<UnStaffSignUpPage> {
                 horizontal: 16,
                 vertical: 16,
               ),
-              errorStyle: TextStyle(
-                color: Colors.red.shade400,
-                fontSize: 12,
-              ),
+              errorStyle: TextStyle(color: Colors.red.shade400, fontSize: 12),
             ),
           ),
         ),
       ],
+    );
+  }
+
+  void _showImagePickerOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Title
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Text(
+                  'Upload Identity Proof',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: _textPrimary,
+                  ),
+                ),
+              ),
+              // Camera Option
+              ListTile(
+                leading: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: _primary.withAlpha(20),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(LucideIcons.camera, color: _primary),
+                ),
+                title: Text(
+                  'Take Photo',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: _textPrimary,
+                  ),
+                ),
+                subtitle: Text(
+                  'Use camera to capture ID',
+                  style: TextStyle(color: _textSecondary),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              // Gallery Option
+              ListTile(
+                leading: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withAlpha(20),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(LucideIcons.image, color: Colors.blueAccent),
+                ),
+                title: Text(
+                  'Choose from Gallery',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: _textPrimary,
+                  ),
+                ),
+                subtitle: Text(
+                  'Select an existing photo',
+                  style: TextStyle(color: _textSecondary),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -368,10 +437,7 @@ class _UnStaffSignUpPageState extends State<UnStaffSignUpPage> {
       decoration: BoxDecoration(
         color: _accentOrange.withAlpha(20),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: _accentOrange.withAlpha(50),
-          width: 1.5,
-        ),
+        border: Border.all(color: _accentOrange.withAlpha(50), width: 1.5),
       ),
       child: Row(
         children: [
@@ -461,8 +527,9 @@ class _UnStaffSignUpPageState extends State<UnStaffSignUpPage> {
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -488,10 +555,7 @@ class _UnStaffSignUpPageState extends State<UnStaffSignUpPage> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Icon(
-                        LucideIcons.send,
-                        size: 20,
-                      ),
+                      Icon(LucideIcons.send, size: 20),
                     ],
                   ),
           ),
@@ -541,16 +605,31 @@ class _UnStaffSignUpPageState extends State<UnStaffSignUpPage> {
       );
     }
   }
+
+  // Method to pick an image from the camera or gallery
+  void _pickImage(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: source);
+
+      if (pickedFile != null) {
+        File imageFile = File(pickedFile.path);
+        // Handle the selected image file (e.g., upload or display it)
+        print('Image selected: ${imageFile.path}');
+      } else {
+        print('No image selected.');
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+    }
+  }
 }
 
 // Pending Approval Screen - shown after submission
 class PendingApprovalScreen extends StatelessWidget {
   final PendingApprovalRequest request;
 
-  const PendingApprovalScreen({
-    super.key,
-    required this.request,
-  });
+  const PendingApprovalScreen({super.key, required this.request});
 
   static const Color _primary = Color(0xFF137FEC);
   static const Color _bgLight = Color(0xFFF6F7F8);
@@ -638,9 +717,9 @@ class PendingApprovalScreen extends StatelessWidget {
                       label: 'Username',
                       value: request.username,
                     ),
-                  
-                  SizedBox(height: 24),
-                   
+
+                    SizedBox(height: 24),
+
                     _buildInfoRow(
                       icon: LucideIcons.mail,
                       label: 'Email',
@@ -706,10 +785,7 @@ class PendingApprovalScreen extends StatelessWidget {
                   ),
                   child: Text(
                     'Back to Home',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),

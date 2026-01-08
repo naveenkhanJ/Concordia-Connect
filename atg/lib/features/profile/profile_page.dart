@@ -518,8 +518,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           ElevatedButton(
             onPressed: () async {
-              
-            
               if (mounted) {
                 Navigator.pop(context);
                 Navigator.pushNamedAndRemoveUntil(

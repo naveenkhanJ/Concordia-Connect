@@ -37,6 +37,29 @@ class _SpacePageState extends State<SpacePage> {
   bool _showOrganizationDetails = false;
   Map<String, dynamic>? _selectedOrganization;
 
+  // Grid layout configuration
+  final ScrollController _scrollController = ScrollController();
+  double _elevation = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    setState(() {
+      _elevation = _scrollController.offset > 10 ? 1 : 0;
+    });
+  }
+
   // Spaces Data
   final List<Map<String, dynamic>> _spaces = [
     {
@@ -95,9 +118,65 @@ class _SpacePageState extends State<SpacePage> {
       'isFavorited': true,
       'joinStatus': 'pending',
     },
+    {
+      'id': '5',
+      'name': 'Human Resources',
+      'description': 'Employee relations and talent management',
+      'members': 24,
+      'activeProjects': 6,
+      'category': 'HR',
+      'role': 'Member',
+      'avatar': 'HR',
+      'color': _accentPink,
+      'recentActivity': 'New hires onboarding',
+      'isFavorited': false,
+      'joinStatus': 'joined',
+    },
+    {
+      'id': '6',
+      'name': 'Marketing Team',
+      'description': 'Brand strategy and campaign management',
+      'members': 36,
+      'activeProjects': 9,
+      'category': 'Marketing',
+      'role': 'Member',
+      'avatar': 'MT',
+      'color': _accentIndigo,
+      'recentActivity': 'Q1 campaign launched',
+      'isFavorited': true,
+      'joinStatus': 'pending',
+    },
+    {
+      'id': '7',
+      'name': 'Research & Development',
+      'description': 'Innovation and product development',
+      'members': 18,
+      'activeProjects': 5,
+      'category': 'R&D',
+      'role': 'Member',
+      'avatar': 'RD',
+      'color': _accentRed,
+      'recentActivity': 'New prototype testing',
+      'isFavorited': true,
+      'joinStatus': 'joined',
+    },
+    {
+      'id': '8',
+      'name': 'Customer Success',
+      'description': 'Client support and satisfaction',
+      'members': 45,
+      'activeProjects': 7,
+      'category': 'Support',
+      'role': 'Lead',
+      'avatar': 'CS',
+      'color': _accentBlue,
+      'recentActivity': 'Customer feedback review',
+      'isFavorited': false,
+      'joinStatus': 'joined',
+    },
   ];
 
-  // Organization-specific data
+  // Organization-specific data (same as before)
   Map<String, dynamic> _getOrganizationData(String orgId) {
     switch (orgId) {
       case '1': // Finance Department
@@ -442,21 +521,22 @@ class _SpacePageState extends State<SpacePage> {
       backgroundColor: _white,
       body: SafeArea(
         child: CustomScrollView(
+          controller: _scrollController,
           physics: const BouncingScrollPhysics(),
           slivers: [
-            // Header
+            // Header with dynamic elevation
             SliverAppBar(
-              expandedHeight: 10,
+              expandedHeight: 120,
               floating: false,
               pinned: true,
               backgroundColor: _white,
-              elevation: 0,
+              elevation: _elevation,
               flexibleSpace: FlexibleSpaceBar(
                 collapseMode: CollapseMode.pin,
                 background: Container(
                   color: _white,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 60, 20, 16),
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -485,9 +565,7 @@ class _SpacePageState extends State<SpacePage> {
               ),
             ),
 
-            // Spaces Grid
-
-            // Recommendations Section
+            // Your Spaces Section
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -495,20 +573,87 @@ class _SpacePageState extends State<SpacePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Recommended for you',
+                      'Your Spaces',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                         color: _textPrimary,
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {},
+                    Text(
+                      '${_spaces.length} total',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: _textTertiary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Grid View for Spaces
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  childAspectRatio: 0.75, // Slightly taller cards
+                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final space = _spaces[index];
+                  return _buildGridSpaceCard(space);
+                }, childCount: _spaces.length),
+              ),
+            ),
+
+            // Recommended Spaces Section
+            SliverToBoxAdapter(
+              child: Container(
+                color: _bgLight,
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Recommended for you',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: _textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Based on your activity and interests',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                            color: _textTertiary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _unPrimary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       child: Text(
-                        'See all',
+                        'New',
                         style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
                           color: _unPrimary,
                         ),
                       ),
@@ -518,14 +663,24 @@ class _SpacePageState extends State<SpacePage> {
               ),
             ),
 
-            // Additional Spaces
+            // Recommended Spaces Grid
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 40),
-              sliver: SliverList(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  childAspectRatio: 0.75,
+                ),
                 delegate: SliverChildBuilderDelegate((context, index) {
-                  // For demo, reuse first 2 spaces as recommendations
-                  final space = _spaces[index % 2];
-                  return _buildRecommendedSpace(space);
+                  // Show first 4 spaces as recommendations
+                  final recommendedSpaces = _spaces
+                      .where((space) => !space['isFavorited'])
+                      .toList();
+                  final space =
+                      recommendedSpaces[index % recommendedSpaces.length];
+                  return _buildGridSpaceCard(space, isRecommended: true);
                 }, childCount: 4),
               ),
             ),
@@ -534,18 +689,26 @@ class _SpacePageState extends State<SpacePage> {
       ),
 
       // Floating Action Button
-      floatingActionButton: FloatingActionButton(
-        onPressed: _createNewSpace,
-        backgroundColor: _unPrimary,
-        foregroundColor: _white,
-        shape: const CircleBorder(),
-        elevation: 8,
-        child: const Icon(LucideIcons.plus, size: 24),
+      floatingActionButton: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        child: FloatingActionButton(
+          onPressed: _createNewSpace,
+          backgroundColor: _unPrimary,
+          foregroundColor: _white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 4,
+          child: const Icon(LucideIcons.plus, size: 24),
+        ),
       ),
     );
   }
 
-  Widget _buildSpaceCard(Map<String, dynamic> space) {
+  Widget _buildGridSpaceCard(
+    Map<String, dynamic> space, {
+    bool isRecommended = false,
+  }) {
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -556,261 +719,312 @@ class _SpacePageState extends State<SpacePage> {
       child: Container(
         decoration: BoxDecoration(
           color: _white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 16,
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 12,
               offset: const Offset(0, 4),
             ),
           ],
           border: Border.all(color: _borderLight, width: 1),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Stack(
           children: [
-            // Cover Area - Simplified without image
-            Container(
-              height: 80,
-              decoration: BoxDecoration(
-                color: space['color'].withOpacity(0.2),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
-              ),
-              child: Center(
-                child: Container(
-                  width: 50,
-                  height: 50,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Header with colored background and avatar
+                Container(
+                  height: 90,
                   decoration: BoxDecoration(
-                    color: space['color'],
-                    borderRadius: BorderRadius.circular(10),
+                    color: space['color'].withOpacity(0.15),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: Stack(
+                    children: [
+                      // Background pattern
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Opacity(
+                          opacity: 0.3,
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: space['color'],
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Main avatar
+                      Center(
+                        child: Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: space['color'],
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: space['color'].withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              space['avatar'],
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Favorite icon
+                      Positioned(
+                        top: 12,
+                        right: 12,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              space['isFavorited'] = !space['isFavorited'];
+                            });
+                          },
+                          child: Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: _white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              space['isFavorited']
+                                  ? LucideIcons.star
+                                  : LucideIcons.star,
+                              size: 14,
+                              color: space['isFavorited']
+                                  ? _accentOrange
+                                  : _textQuaternary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Content
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Name and category
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                space['name'],
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: _textPrimary,
+                                  height: 1.3,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (isRecommended)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _unPrimary.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  'NEW',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    color: _unPrimary,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          space['category'],
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: space['color'],
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        // Description
+                        Expanded(
+                          child: Text(
+                            space['description'],
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              color: _textTertiary,
+                              height: 1.4,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // Stats row
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Members
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${space['members']}',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: _textPrimary,
+                                  ),
+                                ),
+                                Text(
+                                  'Members',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                    color: _textTertiary,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            // Projects
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${space['activeProjects']}',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: _textPrimary,
+                                  ),
+                                ),
+                                Text(
+                                  'Projects',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                    color: _textTertiary,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            // Status badge
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _getJoinStatusColor(
+                                  space['joinStatus'],
+                                ).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                space['joinStatus'] == 'joined'
+                                    ? 'Joined'
+                                    : 'Pending',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: _getJoinStatusColor(
+                                    space['joinStatus'],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            // Role badge
+            if (space['role'] != 'Member')
+              Positioned(
+                top: 12,
+                left: 12,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: space['role'] == 'Admin'
+                        ? _accentRed.withOpacity(0.9)
+                        : space['role'] == 'Lead'
+                        ? _accentGreen.withOpacity(0.9)
+                        : _accentBlue.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(8),
                     boxShadow: [
                       BoxShadow(
-                        color: space['color'].withOpacity(0.3),
-                        blurRadius: 8,
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
                     ],
                   ),
-                  child: Center(
-                    child: Text(
-                      space['avatar'],
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // Content
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Name
-                  Text(
-                    space['name'],
-                    style: TextStyle(
-                      fontSize: 15,
+                  child: Text(
+                    space['role'],
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: _textPrimary,
-                      height: 1.3,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    space['description'],
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: _textTertiary,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // Stats
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildSpaceStat(
-                        icon: LucideIcons.users,
-                        value: '${space['members']}',
-                        label: 'Members',
-                      ),
-                      _buildSpaceStat(
-                        icon: LucideIcons.folder,
-                        value: '${space['activeProjects']}',
-                        label: 'Projects',
-                      ),
-                      _buildSpaceStat(
-                        icon: LucideIcons.activity,
-                        value: space['joinStatus'] == 'joined'
-                            ? 'Joined'
-                            : 'Pending',
-                        label: 'Status',
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRecommendedSpace(Map<String, dynamic> space) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedOrganization = space;
-          _showOrganizationDetails = true;
-        });
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: _white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _borderLight, width: 1),
-        ),
-        child: Row(
-          children: [
-            // Avatar
-            Container(
-              width: 60,
-              height: 60,
-              margin: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: space['color'],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(
-                child: Text(
-                  space['avatar'],
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
-            ),
-
-            // Info
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      space['name'],
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: _textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      space['description'],
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        color: _textTertiary,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Icon(LucideIcons.users, size: 12, color: _textTertiary),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${space['members']} members',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: _textTertiary,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _getJoinStatusColor(
-                              space['joinStatus'],
-                            ).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            space['joinStatus'] == 'joined'
-                                ? 'Joined'
-                                : 'Pending',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: _getJoinStatusColor(space['joinStatus']),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildSpaceStat({
-    required IconData icon,
-    required String value,
-    required String label,
-  }) {
-    return Column(
-      children: [
-        Icon(icon, size: 16, color: _textTertiary),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: _textPrimary,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
-            color: _textTertiary,
-          ),
-        ),
-      ],
     );
   }
 
@@ -825,6 +1039,7 @@ class _SpacePageState extends State<SpacePage> {
     }
   }
 
+  // All other methods remain the same as before...
   Widget _buildOrganizationDetailsView(Map<String, dynamic> org) {
     final orgData = _getOrganizationData(org['id']);
 
@@ -915,13 +1130,9 @@ class _SpacePageState extends State<SpacePage> {
         ),
         body: TabBarView(
           children: [
-            // Feed Tab
             _buildFeedTab(orgData['feedPosts'], org),
-            // Events Tab
             _buildEventsTab(orgData['events']),
-            // Files Tab
             _buildFilesTab(orgData['files']),
-            // Chat Tab
             _buildChatTab(orgData['chatMessages'], org),
           ],
         ),
@@ -933,7 +1144,6 @@ class _SpacePageState extends State<SpacePage> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // Create Post Card
           Container(
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.all(16),
@@ -1011,8 +1221,6 @@ class _SpacePageState extends State<SpacePage> {
               ],
             ),
           ),
-
-          // Posts
           ...posts.map((post) => _buildPostCard(post, org)).toList(),
         ],
       ),
@@ -1108,7 +1316,6 @@ class _SpacePageState extends State<SpacePage> {
               ],
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
@@ -1120,7 +1327,6 @@ class _SpacePageState extends State<SpacePage> {
               ),
             ),
           ),
-
           if (post['images'] != null && post['images'].isNotEmpty)
             Container(
               height: 200,
@@ -1133,7 +1339,6 @@ class _SpacePageState extends State<SpacePage> {
                 ),
               ),
             ),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
@@ -1171,7 +1376,6 @@ class _SpacePageState extends State<SpacePage> {
               ],
             ),
           ),
-
           Container(
             padding: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
@@ -1435,7 +1639,6 @@ class _SpacePageState extends State<SpacePage> {
   Widget _buildChatTab(List<dynamic> messages, Map<String, dynamic> org) {
     return Column(
       children: [
-        // Chat Header
         Container(
           padding: const EdgeInsets.all(16),
           color: _white,
@@ -1490,8 +1693,6 @@ class _SpacePageState extends State<SpacePage> {
             ],
           ),
         ),
-
-        // Messages
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.all(16),
@@ -1529,7 +1730,6 @@ class _SpacePageState extends State<SpacePage> {
                           ),
                         ),
                       ),
-
                     Flexible(
                       child: Container(
                         constraints: BoxConstraints(
@@ -1586,8 +1786,6 @@ class _SpacePageState extends State<SpacePage> {
             },
           ),
         ),
-
-        // Message Input
         Container(
           padding: const EdgeInsets.all(16),
           color: _white,

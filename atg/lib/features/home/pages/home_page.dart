@@ -529,33 +529,7 @@ class _EliteDashboardViewState extends State<EliteDashboardView> {
           child: Row(
             children: [
               // Quick Actions
-              Row(
-                children: [
-                  _buildQuickAction(
-                    icon: LucideIcons.plus,
-                    label: 'Create',
-                    color: _unPrimary,
-                    onTap: () {},
-                    isSmall: true,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildQuickAction(
-                    icon: LucideIcons.share2,
-                    label: 'Share',
-                    color: _accentPurple,
-                    onTap: () {},
-                    isSmall: true,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildQuickAction(
-                    icon: LucideIcons.download,
-                    label: 'Export',
-                    color: _accentGreen,
-                    onTap: () {},
-                    isSmall: true,
-                  ),
-                ],
-              ),
+              Row(),
               const Spacer(),
               // View Toggle
               Container(
@@ -565,74 +539,13 @@ class _EliteDashboardViewState extends State<EliteDashboardView> {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: _borderLight, width: 1),
                 ),
-                child: Row(
-                  children: [
-                    _buildViewToggle(
-                      icon: LucideIcons.grid,
-                      isActive: true,
-                      onTap: () {},
-                      isSmall: true,
-                    ),
-                    _buildViewToggle(
-                      icon: LucideIcons.list,
-                      isActive: false,
-                      onTap: () {},
-                      isSmall: true,
-                    ),
-                  ],
-                ),
+                child: Row(),
               ),
             ],
           ),
         ),
 
         // Tab Navigation
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Container(
-            height: 42,
-            decoration: BoxDecoration(
-              color: _bgCard,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: _borderLight, width: 1.5),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                _buildPremiumTab(
-                  index: 0,
-                  icon: LucideIcons.layoutGrid,
-                  label: 'All Posts',
-                  isActive: _selectedTab == 0,
-                  count: _posts.length,
-                  isSmall: true,
-                ),
-                _buildPremiumTab(
-                  index: 1,
-                  icon: LucideIcons.pin,
-                  label: 'Pinned',
-                  isActive: _selectedTab == 1,
-                  count: pinnedPosts.length,
-                  isSmall: true,
-                ),
-                _buildPremiumTab(
-                  index: 2,
-                  icon: LucideIcons.clock,
-                  label: 'Recent',
-                  isActive: _selectedTab == 2,
-                  count: recentPosts.length,
-                  isSmall: true,
-                ),
-              ],
-            ),
-          ),
-        ),
 
         // Content Area
         const SizedBox(height: 12),

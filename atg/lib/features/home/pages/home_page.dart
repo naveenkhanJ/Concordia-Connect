@@ -6,6 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:atg/features/spaces/space_page.dart'; // Import SpacePage
 import 'package:lucide_icons/lucide_icons.dart';
 
+// Add this import for the ChatPage
+import '../../chat/chat_page.dart';
+import '../../profile/profile_page.dart';
+
 class EliteDashboardView extends StatefulWidget {
   const EliteDashboardView({super.key});
 
@@ -257,32 +261,50 @@ class _EliteDashboardViewState extends State<EliteDashboardView> {
                 ],
               ),
 
-              // User Profile with Notification
-              Stack(
-                clipBehavior: Clip.none,
+              // Message Icon + User Profile
+              Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: _bgCard,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: _borderLight, width: 1),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 32,
-                          height: 32,
+                  // Message Icon (top-right corner)
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: _bgCard,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: _borderLight, width: 1.5),
+                        ),
+                        child: IconButton(
+                          icon: Icon(
+                            LucideIcons.messageSquare,
+                            size: 18,
+                            color: _textSecondary,
+                          ),
+                          onPressed: () {
+                            // Navigate to Chat Page
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const ChatPage(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Positioned(
+                        top: -3,
+                        right: -3,
+                        child: Container(
+                          width: 16,
+                          height: 16,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [_unPrimary, _unSecondary],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
+                            color: _accentPurple,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: _white, width: 2),
                             boxShadow: [
                               BoxShadow(
-                                color: _unPrimary.withOpacity(0.2),
+                                color: _accentPurple.withOpacity(0.3),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -290,67 +312,126 @@ class _EliteDashboardViewState extends State<EliteDashboardView> {
                           ),
                           child: Center(
                             child: Text(
-                              'HP',
-                              style: TextStyle(
-                                color: _white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12,
+                              '5', // Unread message count
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w800,
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'H. Pawan',
-                              style: _bodyMedium.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: _textPrimary,
-                                fontSize: 13,
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  // User Profile with Notification - Tappable
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const ProfilePage(),
+                        ),
+                      );
+                    },
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: _bgCard,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: _borderLight, width: 1),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 32,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [_unPrimary, _unSecondary],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: _unPrimary.withOpacity(0.2),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'HP',
+                                    style: TextStyle(
+                                      color: _white,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'H. Pawan',
+                                    style: _bodyMedium.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: _textPrimary,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Member',
+                                    style: _caption.copyWith(
+                                      color: _textTertiary,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Positioned(
+                          top: -3,
+                          right: -3,
+                          child: Container(
+                            width: 16,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: _accentRed,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: _white, width: 2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: _accentRed.withOpacity(0.3),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Text(
+                                '3',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
                             ),
-                            Text(
-                              'Member',
-                              style: _caption.copyWith(
-                                color: _textTertiary,
-                                fontSize: 10,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ],
-                    ),
-                  ),
-                  Positioned(
-                    top: -3,
-                    right: -3,
-                    child: Container(
-                      width: 16,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        color: _accentRed,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: _white, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: _accentRed.withOpacity(0.3),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Text(
-                          '3',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                 ],

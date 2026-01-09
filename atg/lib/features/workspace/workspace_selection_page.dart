@@ -1,4 +1,5 @@
 import 'package:atg/features/login/login_page.dart';
+import 'package:atg/features/workspace/join_invite_link_page.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -40,7 +41,8 @@ class WorkspaceSelectionPage extends StatelessWidget {
                       context,
                       icon: LucideIcons.plus,
                       title: 'Create a new workspace',
-                      description: 'Create a new workspace for your Organization',
+                      description:
+                          'Create a new workspace for your Organization',
                       onTap: () {
                         // TODO: Navigate to create workspace
                       },
@@ -54,7 +56,12 @@ class WorkspaceSelectionPage extends StatelessWidget {
                       title: 'Join with Invite link',
                       description: 'Enter your Organization link to connect',
                       onTap: () {
-                        // TODO: Navigate to join workspace
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const JoinInviteLinkPage(),
+                          ),
+                        );
                       },
                     ),
 
@@ -125,11 +132,7 @@ class WorkspaceSelectionPage extends StatelessWidget {
             shape: BoxShape.circle,
           ),
           child: Center(
-            child: Icon(
-              LucideIcons.network,
-              size: 40,
-              color: _primary,
-            ),
+            child: Icon(LucideIcons.network, size: 40, color: _primary),
           ),
         ),
 
@@ -183,10 +186,7 @@ class WorkspaceSelectionPage extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Colors.transparent,
-              width: 1.5,
-            ),
+            border: Border.all(color: Colors.transparent, width: 1.5),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withAlpha(10),
@@ -206,13 +206,7 @@ class WorkspaceSelectionPage extends StatelessWidget {
                   color: _primary.withAlpha(25),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Center(
-                  child: Icon(
-                    icon,
-                    size: 26,
-                    color: _primary,
-                  ),
-                ),
+                child: Center(child: Icon(icon, size: 26, color: _primary)),
               ),
 
               const SizedBox(height: 16),

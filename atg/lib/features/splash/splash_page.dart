@@ -22,10 +22,12 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
 
     // Set system status bar to match background color
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-    ));
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+      ),
+    );
 
     _animationController = AnimationController(
       vsync: this,
@@ -56,15 +58,13 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    _textSlideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.6, 0.9, curve: Curves.easeOutCubic),
-      ),
-    );
+    _textSlideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: const Interval(0.6, 0.9, curve: Curves.easeOutCubic),
+          ),
+        );
 
     _animationController.forward();
 
@@ -114,7 +114,7 @@ class _SplashScreenState extends State<SplashScreen>
                             ],
                           ),
                           child: Image.asset(
-                            'assets/logo.png',
+                            'assets/images/splash.jpeg',
                             width: 140,
                             height: 140,
                           ),
@@ -133,7 +133,8 @@ class _SplashScreenState extends State<SplashScreen>
                       'CONCORDIA CONNECT',
                       style: TextStyle(
                         fontSize: 24,
-                        letterSpacing: 3.0, // Added spacing for "Professional" look
+                        letterSpacing:
+                            3.0, // Added spacing for "Professional" look
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
                       ),

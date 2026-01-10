@@ -33,9 +33,150 @@ class _SpacePageState extends State<SpacePage> {
   static const Color _accentPink = Color(0xFFED64A6);
 
   // State variables
-  int _selectedTab = 0; // 0: Feed, 1: Events, 2: Files, 3: Chat
+  int _selectedTab = 0; // 0: Feed, 1: Events, 2: Files, 3: Chat, 4: Tasks
   Map<String, dynamic>? _selectedOrganization;
   bool _showOrganizationDetails = false;
+  bool _showCreateTask = false;
+
+  // Task state
+  String _newTaskTitle = '';
+  String _newTaskDescription = '';
+  DateTime? _newTaskDueDate;
+  String _newTaskPriority = 'Medium';
+  List<String> _selectedAssignees = [];
+  String _newTaskStatus = 'To Do';
+
+  // Sample team members for task assignment
+  final List<Map<String, dynamic>> _teamMembers = [
+    {
+      'id': '1',
+      'name': 'Haritha Pawan',
+      'role': 'Finance Director',
+      'avatar': 'HP',
+      'email': 'haritha@company.com',
+      'color': _accentGreen,
+      'isSelected': false,
+    },
+    {
+      'id': '2',
+      'name': 'Michael Chen',
+      'role': 'Sr. Financial Analyst',
+      'avatar': 'MC',
+      'email': 'michael@company.com',
+      'color': _accentBlue,
+      'isSelected': false,
+    },
+    {
+      'id': '3',
+      'name': 'Sarah Williams',
+      'role': 'Budget Manager',
+      'avatar': 'SW',
+      'email': 'sarah@company.com',
+      'color': _accentPurple,
+      'isSelected': false,
+    },
+    {
+      'id': '4',
+      'name': 'Alex Johnson',
+      'role': 'Account Manager',
+      'avatar': 'AJ',
+      'email': 'alex@company.com',
+      'color': _accentOrange,
+      'isSelected': false,
+    },
+    {
+      'id': '5',
+      'name': 'Lisa Rodriguez',
+      'role': 'Financial Analyst',
+      'avatar': 'LR',
+      'email': 'lisa@company.com',
+      'color': _accentPink,
+      'isSelected': false,
+    },
+    {
+      'id': '6',
+      'name': 'David Kim',
+      'role': 'Audit Specialist',
+      'avatar': 'DK',
+      'email': 'david@company.com',
+      'color': _accentRed,
+      'isSelected': false,
+    },
+  ];
+
+  // Sample tasks data
+  List<Map<String, dynamic>> _tasks = [
+    {
+      'id': '1',
+      'title': 'Complete Q4 Financial Report',
+      'description': 'Prepare and finalize Q4 financial statements',
+      'dueDate': '2024-01-15',
+      'priority': 'High',
+      'status': 'In Progress',
+      'assignees': ['Haritha Pawan', 'Michael Chen'],
+      'createdBy': 'Haritha Pawan',
+      'createdAt': '2024-01-02',
+      'comments': 5,
+      'attachments': 2,
+      'color': _accentRed,
+    },
+    {
+      'id': '2',
+      'title': 'Annual Budget Planning',
+      'description': 'Draft budget proposal for next fiscal year',
+      'dueDate': '2024-01-31',
+      'priority': 'Medium',
+      'status': 'To Do',
+      'assignees': ['Sarah Williams'],
+      'createdBy': 'Haritha Pawan',
+      'createdAt': '2024-01-01',
+      'comments': 2,
+      'attachments': 1,
+      'color': _accentOrange,
+    },
+    {
+      'id': '3',
+      'title': 'Audit Preparation Meeting',
+      'description': 'Prepare documents and schedule for audit',
+      'dueDate': '2024-01-10',
+      'priority': 'High',
+      'status': 'Done',
+      'assignees': ['David Kim', 'Alex Johnson'],
+      'createdBy': 'Michael Chen',
+      'createdAt': '2023-12-28',
+      'comments': 8,
+      'attachments': 3,
+      'color': _accentGreen,
+    },
+    {
+      'id': '4',
+      'title': 'Expense Policy Update',
+      'description': 'Review and update company expense policies',
+      'dueDate': '2024-01-20',
+      'priority': 'Medium',
+      'status': 'In Progress',
+      'assignees': ['Sarah Williams', 'Lisa Rodriguez'],
+      'createdBy': 'Sarah Williams',
+      'createdAt': '2023-12-30',
+      'comments': 3,
+      'attachments': 0,
+      'color': _accentBlue,
+    },
+    {
+      'id': '5',
+      'title': 'Tax Filing Preparation',
+      'description': 'Organize documents for annual tax filing',
+      'dueDate': '2024-02-15',
+      'priority': 'Low',
+      'status': 'To Do',
+      'assignees': ['Michael Chen'],
+      'createdBy': 'David Kim',
+      'createdAt': '2024-01-03',
+      'comments': 1,
+      'attachments': 0,
+      'color': _accentPurple,
+    },
+  ];
 
   // Spaces Data
   final List<Map<String, dynamic>> _spaces = [
@@ -243,6 +384,7 @@ class _SpacePageState extends State<SpacePage> {
               'read': false,
             },
           ],
+          'tasks': _tasks,
         };
       case '2': // Operations Team
         return {
@@ -431,9 +573,16 @@ class _SpacePageState extends State<SpacePage> {
               'read': false,
             },
           ],
+          'tasks': [],
         };
       default: // Default/General
-        return {'feedPosts': [], 'events': [], 'files': [], 'chatMessages': []};
+        return {
+          'feedPosts': [],
+          'events': [],
+          'files': [],
+          'chatMessages': [],
+          'tasks': [],
+        };
     }
   }
 
@@ -461,12 +610,12 @@ class _SpacePageState extends State<SpacePage> {
                 background: Container(
                   color: _white,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 60, 20, 16),
+                    padding: const EdgeInsets.fromLTRB(10, 20, 20, 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Organizations',
+                          'Spaces',
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.w800,
@@ -867,7 +1016,7 @@ class _SpacePageState extends State<SpacePage> {
     final orgData = _getOrganizationData(org['id']);
 
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         backgroundColor: _white,
         appBar: AppBar(
@@ -948,6 +1097,7 @@ class _SpacePageState extends State<SpacePage> {
               Tab(icon: Icon(LucideIcons.calendar), text: 'Events'),
               Tab(icon: Icon(LucideIcons.folder), text: 'Files'),
               Tab(icon: Icon(LucideIcons.messageSquare), text: 'Chat'),
+              Tab(icon: Icon(LucideIcons.checkSquare), text: 'Tasks'),
             ],
           ),
         ),
@@ -961,6 +1111,8 @@ class _SpacePageState extends State<SpacePage> {
             _buildFilesTab(orgData['files']),
             // Chat Tab
             _buildChatTab(orgData['chatMessages'], org),
+            // Tasks Tab
+            _buildTasksTab(orgData['tasks'], org),
           ],
         ),
       ),
@@ -1666,6 +1818,1692 @@ class _SpacePageState extends State<SpacePage> {
         ),
       ],
     );
+  }
+
+  Widget _buildTasksTab(List<dynamic> tasks, Map<String, dynamic> org) {
+    if (_showCreateTask) {
+      return _buildCreateTaskView(org);
+    }
+
+    return Scaffold(
+      backgroundColor: _white,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            _showCreateTask = true;
+          });
+        },
+        backgroundColor: _unPrimary,
+        foregroundColor: _white,
+        shape: const CircleBorder(),
+        elevation: 4,
+        child: const Icon(LucideIcons.plus, size: 24),
+      ),
+      body: Column(
+        children: [
+          // Task Stats
+          Container(
+            padding: const EdgeInsets.all(16),
+            color: _bgLight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildTaskStat('To Do', '2', _accentBlue),
+                _buildTaskStat('In Progress', '2', _accentOrange),
+                _buildTaskStat('Done', '1', _accentGreen),
+                _buildTaskStat('Total', '5', _accentPurple),
+              ],
+            ),
+          ),
+
+          // Task Filter
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: _borderLight, width: 1)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: _bgLight,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          LucideIcons.search,
+                          size: 18,
+                          color: _textTertiary,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Search tasks...',
+                              hintStyle: TextStyle(color: _textTertiary),
+                              border: InputBorder.none,
+                            ),
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                IconButton(
+                  icon: const Icon(LucideIcons.filter),
+                  onPressed: () {
+                    _showTaskFilterDialog();
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          // Task List
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: tasks.length,
+              itemBuilder: (context, index) {
+                final task = tasks[index];
+                return _buildTaskCard(task, org);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTaskStat(String label, String count, Color color) {
+    return Column(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Text(
+              count,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: _textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTaskCard(Map<String, dynamic> task, Map<String, dynamic> org) {
+    return GestureDetector(
+      onTap: () {
+        _showTaskDetails(task, org);
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: _white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: _borderLight, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _getPriorityColor(task['priority']).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    task['priority'],
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: _getPriorityColor(task['priority']),
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _getStatusColor(task['status']).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    task['status'],
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: _getStatusColor(task['status']),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              task['title'],
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              task['description'],
+              style: TextStyle(
+                fontSize: 13,
+                color: _textSecondary,
+                height: 1.4,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(LucideIcons.calendar, size: 14, color: _textTertiary),
+                const SizedBox(width: 4),
+                Text(
+                  'Due ${task['dueDate']}',
+                  style: TextStyle(fontSize: 12, color: _textTertiary),
+                ),
+                const Spacer(),
+                Row(
+                  children: [
+                    Icon(
+                      LucideIcons.messageSquare,
+                      size: 14,
+                      color: _textTertiary,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${task['comments']}',
+                      style: TextStyle(fontSize: 12, color: _textTertiary),
+                    ),
+                    const SizedBox(width: 12),
+                    Icon(LucideIcons.paperclip, size: 14, color: _textTertiary),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${task['attachments']}',
+                      style: TextStyle(fontSize: 12, color: _textTertiary),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Assignee Avatars - FIXED: No negative margins
+                SizedBox(
+                  height: 28,
+                  child: Stack(
+                    children: [
+                      for (
+                        int i = 0;
+                        i < (task['assignees'] as List).length && i < 3;
+                        i++
+                      )
+                        Positioned(
+                          left: i * 20.0,
+                          child: Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: _unPrimary,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: _white, width: 2),
+                            ),
+                            child: Center(
+                              child: Text(
+                                (task['assignees'] as List)[i].substring(0, 1),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                // Menu button
+                PopupMenuButton<String>(
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'edit',
+                      child: Row(
+                        children: [
+                          Icon(LucideIcons.edit, size: 16, color: _textPrimary),
+                          const SizedBox(width: 8),
+                          Text('Edit Task'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(LucideIcons.trash2, size: 16, color: _accentRed),
+                          const SizedBox(width: 8),
+                          Text('Delete Task'),
+                        ],
+                      ),
+                    ),
+                  ],
+                  onSelected: (value) {
+                    if (value == 'edit') {
+                      setState(() {
+                        _showCreateTask = true;
+                        _newTaskTitle = task['title'];
+                        _newTaskDescription = task['description'];
+                        _newTaskPriority = task['priority'];
+                        _newTaskStatus = task['status'];
+                        _selectedAssignees = List.from(task['assignees']);
+                      });
+                    } else if (value == 'delete') {
+                      _deleteTask(task['id']);
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: _bgLight,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      LucideIcons.moreVertical,
+                      size: 16,
+                      color: _textTertiary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCreateTaskView(Map<String, dynamic> org) {
+    return Scaffold(
+      backgroundColor: _white,
+      appBar: AppBar(
+        backgroundColor: _white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(LucideIcons.arrowLeft, color: Colors.black),
+          onPressed: () {
+            setState(() {
+              _showCreateTask = false;
+              _resetTaskForm();
+            });
+          },
+        ),
+        title: const Text(
+          'Create New Task',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: Colors.black,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: _saveTask,
+            child: Text(
+              'Save',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: _unPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Task Title
+            Text(
+              'Task Title',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: _textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              decoration: InputDecoration(
+                hintText: 'Enter task title',
+                hintStyle: TextStyle(color: _textTertiary),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: _borderLight),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: _unPrimary),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+              ),
+              style: const TextStyle(fontSize: 16),
+              maxLines: 1,
+              onChanged: (value) {
+                setState(() {
+                  _newTaskTitle = value;
+                });
+              },
+            ),
+            const SizedBox(height: 20),
+
+            // Task Description
+            Text(
+              'Description',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: _textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              decoration: InputDecoration(
+                hintText: 'Describe the task details...',
+                hintStyle: TextStyle(color: _textTertiary),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: _borderLight),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: _unPrimary),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+              ),
+              style: const TextStyle(fontSize: 14),
+              maxLines: 4,
+              onChanged: (value) {
+                setState(() {
+                  _newTaskDescription = value;
+                });
+              },
+            ),
+            const SizedBox(height: 20),
+
+            // Assignees
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Assign to',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: _textPrimary,
+                  ),
+                ),
+                TextButton(
+                  onPressed: _showAssigneeSelection,
+                  child: Text(
+                    'Select Members',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: _unPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            _selectedAssignees.isEmpty
+                ? Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: _bgLight,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: _borderLight),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          LucideIcons.userPlus,
+                          size: 20,
+                          color: _textTertiary,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          'No assignees selected',
+                          style: TextStyle(color: _textTertiary),
+                        ),
+                      ],
+                    ),
+                  )
+                : Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _selectedAssignees.map((assignee) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _unPrimary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: _unPrimary.withOpacity(0.3),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color: _unPrimary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  assignee.substring(0, 1),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              assignee,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: _unPrimary,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedAssignees.remove(assignee);
+                                });
+                              },
+                              child: Icon(
+                                LucideIcons.x,
+                                size: 14,
+                                color: _unPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+            const SizedBox(height: 20),
+
+            // Priority & Status
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Priority',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: _textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        value: _newTaskPriority,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: _borderLight),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: _unPrimary),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                        ),
+                        items: [
+                          DropdownMenuItem(
+                            value: 'Low',
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: _accentGreen,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text('Low'),
+                              ],
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Medium',
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: _accentOrange,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text('Medium'),
+                              ],
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: 'High',
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: _accentRed,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text('High'),
+                              ],
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Critical',
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: Colors.purple,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text('Critical'),
+                              ],
+                            ),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            _newTaskPriority = value!;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Status',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: _textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        value: _newTaskStatus,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: _borderLight),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: _unPrimary),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                        ),
+                        items: [
+                          DropdownMenuItem(
+                            value: 'To Do',
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: _accentBlue,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text('To Do'),
+                              ],
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: 'In Progress',
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: _accentOrange,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text('In Progress'),
+                              ],
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Done',
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: _accentGreen,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text('Done'),
+                              ],
+                            ),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            _newTaskStatus = value!;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Due Date
+            Text(
+              'Due Date',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: _textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: _selectDueDate,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(color: _borderLight),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(LucideIcons.calendar, size: 20, color: _textTertiary),
+                    const SizedBox(width: 12),
+                    Text(
+                      _newTaskDueDate == null
+                          ? 'Select due date'
+                          : 'Due ${_newTaskDueDate!.toLocal().toString().split(' ')[0]}',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: _newTaskDueDate == null
+                            ? _textTertiary
+                            : _textPrimary,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (_newTaskDueDate != null)
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _newTaskDueDate = null;
+                          });
+                        },
+                        child: Icon(
+                          LucideIcons.x,
+                          size: 16,
+                          color: _textTertiary,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
+
+            // Create Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _saveTask,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _unPrimary,
+                  foregroundColor: _white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Text(
+                  'Create Task',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _selectDueDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now().add(const Duration(days: 7)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null) {
+      setState(() {
+        _newTaskDueDate = picked;
+      });
+    }
+  }
+
+  void _showAssigneeSelection() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: _white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return SizedBox(
+              height: MediaQuery.of(context).size.height * 0.8,
+              child: Column(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: _borderLight,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Select Members',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: _textPrimary,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            setState(() {
+                              for (var member in _teamMembers) {
+                                member['isSelected'] = false;
+                              }
+                              _selectedAssignees.clear();
+                            });
+                          },
+                          child: Text(
+                            'Clear All',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: _accentRed,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: _bgLight,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            LucideIcons.search,
+                            size: 18,
+                            color: _textTertiary,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              decoration: InputDecoration(
+                                hintText: 'Search members...',
+                                hintStyle: TextStyle(color: _textTertiary),
+                                border: InputBorder.none,
+                              ),
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: _teamMembers.length,
+                      itemBuilder: (context, index) {
+                        final member = _teamMembers[index];
+                        return CheckboxListTile(
+                          value: member['isSelected'],
+                          onChanged: (value) {
+                            setState(() {
+                              member['isSelected'] = value!;
+                              if (value) {
+                                _selectedAssignees.add(member['name']);
+                              } else {
+                                _selectedAssignees.remove(member['name']);
+                              }
+                            });
+                          },
+                          title: Row(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: member['color'],
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    member['avatar'],
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      member['name'],
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    Text(
+                                      member['role'],
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: _textTertiary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
+                    ),
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _unPrimary,
+                        foregroundColor: _white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        'Select (${_selectedAssignees.length})',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _saveTask() {
+    if (_newTaskTitle.isEmpty) {
+      _showSnackBar('Please enter a task title');
+      return;
+    }
+
+    if (_selectedAssignees.isEmpty) {
+      _showSnackBar('Please select at least one assignee');
+      return;
+    }
+
+    final newTask = {
+      'id': '${_tasks.length + 1}',
+      'title': _newTaskTitle,
+      'description': _newTaskDescription,
+      'dueDate': _newTaskDueDate == null
+          ? 'No due date'
+          : _newTaskDueDate!.toLocal().toString().split(' ')[0],
+      'priority': _newTaskPriority,
+      'status': _newTaskStatus,
+      'assignees': List.from(_selectedAssignees),
+      'createdBy': 'Haritha Pawan',
+      'createdAt': DateTime.now().toLocal().toString().split(' ')[0],
+      'comments': 0,
+      'attachments': 0,
+      'color': _getPriorityColor(_newTaskPriority),
+    };
+
+    setState(() {
+      _tasks.insert(0, newTask);
+      _showCreateTask = false;
+      _resetTaskForm();
+    });
+
+    _showSnackBar('Task created successfully!');
+  }
+
+  void _showTaskDetails(Map<String, dynamic> task, Map<String, dynamic> org) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: _white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SizedBox(
+          height: MediaQuery.of(context).size.height * 0.85,
+          child: Column(
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: _borderLight,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _getPriorityColor(
+                                    task['priority'],
+                                  ).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  task['priority'],
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: _getPriorityColor(task['priority']),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _getStatusColor(
+                                    task['status'],
+                                  ).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  task['status'],
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: _getStatusColor(task['status']),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            task['title'],
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    PopupMenuButton<String>(
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'edit',
+                          child: Row(
+                            children: [
+                              Icon(
+                                LucideIcons.edit,
+                                size: 16,
+                                color: _textPrimary,
+                              ),
+                              const SizedBox(width: 8),
+                              Text('Edit'),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(
+                                LucideIcons.trash2,
+                                size: 16,
+                                color: _accentRed,
+                              ),
+                              const SizedBox(width: 8),
+                              Text('Delete'),
+                            ],
+                          ),
+                        ),
+                      ],
+                      onSelected: (value) {
+                        Navigator.pop(context);
+                        if (value == 'edit') {
+                          setState(() {
+                            _showCreateTask = true;
+                            _newTaskTitle = task['title'];
+                            _newTaskDescription = task['description'];
+                            _newTaskPriority = task['priority'];
+                            _newTaskStatus = task['status'];
+                            _selectedAssignees = List.from(task['assignees']);
+                          });
+                        } else if (value == 'delete') {
+                          _deleteTask(task['id']);
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: _bgLight,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          LucideIcons.moreVertical,
+                          size: 20,
+                          color: _textTertiary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Description',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: _textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        task['description'],
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: _textSecondary,
+                          height: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Due Date',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: _textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Icon(
+                                    LucideIcons.calendar,
+                                    size: 16,
+                                    color: _textTertiary,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    task['dueDate'],
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: _textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Created By',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: _textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Icon(
+                                    LucideIcons.user,
+                                    size: 16,
+                                    color: _textTertiary,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    task['createdBy'],
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: _textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Assignees',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: _textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: task['assignees'].map((assignee) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _unPrimary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    color: _unPrimary,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      assignee.substring(0, 1),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  assignee,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: _unPrimary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Activity',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: _textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: _unPrimary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Text(
+                                task['createdBy'].substring(0, 1),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Created by ${task['createdBy']} on ${task['createdAt']}',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: _textTertiary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(color: _borderLight, width: 1),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            final index = _tasks.indexWhere(
+                              (t) => t['id'] == task['id'],
+                            );
+                            if (index != -1) {
+                              if (_tasks[index]['status'] == 'To Do') {
+                                _tasks[index]['status'] = 'In Progress';
+                              } else if (_tasks[index]['status'] ==
+                                  'In Progress') {
+                                _tasks[index]['status'] = 'Done';
+                              }
+                            }
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _unPrimary,
+                          foregroundColor: _white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          task['status'] == 'Done'
+                              ? 'Completed'
+                              : 'Mark Complete',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showTaskFilterDialog() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: _white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Filter Tasks',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: _textPrimary,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Status',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: _textPrimary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: ['All', 'To Do', 'In Progress', 'Done'].map((status) {
+                  return ChoiceChip(
+                    label: Text(status),
+                    selected: false,
+                    onSelected: (selected) {},
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Priority',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: _textPrimary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: ['All', 'Low', 'Medium', 'High', 'Critical'].map((
+                  priority,
+                ) {
+                  return ChoiceChip(
+                    label: Text(priority),
+                    selected: false,
+                    onSelected: (selected) {},
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 30),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _unPrimary,
+                    foregroundColor: _white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Apply Filters',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _deleteTask(String taskId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Task'),
+        content: const Text(
+          'Are you sure you want to delete this task? This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _tasks.removeWhere((task) => task['id'] == taskId);
+              });
+              Navigator.pop(context);
+              _showSnackBar('Task deleted successfully');
+            },
+            style: TextButton.styleFrom(foregroundColor: _accentRed),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
+    );
+  }
+
+  void _resetTaskForm() {
+    _newTaskTitle = '';
+    _newTaskDescription = '';
+    _newTaskDueDate = null;
+    _newTaskPriority = 'Medium';
+    _newTaskStatus = 'To Do';
+    _selectedAssignees.clear();
+
+    // Reset team members selection
+    for (var member in _teamMembers) {
+      member['isSelected'] = false;
+    }
+  }
+
+  Color _getPriorityColor(String priority) {
+    switch (priority.toLowerCase()) {
+      case 'high':
+        return _accentRed;
+      case 'medium':
+        return _accentOrange;
+      case 'low':
+        return _accentGreen;
+      case 'critical':
+        return Colors.purple;
+      default:
+        return _accentBlue;
+    }
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'done':
+        return _accentGreen;
+      case 'in progress':
+        return _accentOrange;
+      case 'to do':
+        return _accentBlue;
+      default:
+        return _textTertiary;
+    }
   }
 
   IconData _getFileTypeIcon(String type) {
